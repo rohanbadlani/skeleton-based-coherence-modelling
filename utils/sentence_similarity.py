@@ -36,12 +36,11 @@ class SentenceSimilarity(object):
         cosine_similarity = 1.0 - cosine_distance
         return cosine_similarity
 
-    def get_bert_euclidean_similarity(self, idx1, idx2):
+    def get_bert_euclidean_distance(self, idx1, idx2):
         sent1 = self.bert_sent_vecs[idx1][1]
         sent2 = self.bert_sent_vecs[idx2][1]
         euclidean_distance = scipy.spatial.distance.euclidean(sent1, sent2)
-        euclidean_similarity = 1.0 - euclidean_distance
-        return euclidean_similarity
+        return euclidean_distance
 
     
 if __name__ == '__main__':
@@ -54,4 +53,4 @@ It obtains new state-of-the-art results on eleven natural language processing ta
     similarity_object = SentenceSimilarity(sentences)
     similarity_object.get_bert_sent_vecs()
     print(similarity_object.get_bert_cosine_similarity(0, 1))
-    print(similarity_object.get_bert_euclidean_similarity(0, 1))
+    print(similarity_object.get_bert_euclidean_distance(0, 1))

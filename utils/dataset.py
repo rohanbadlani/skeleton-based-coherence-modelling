@@ -2,6 +2,7 @@ import numpy as np
 import sys
 import pdb
 import ast
+from random import shuffle
 
 class SkeletonDataset(object):
 	def __init__(self):
@@ -186,6 +187,27 @@ class SkeletonDataset(object):
 				json = {}
 				json["text"] = sentences
 				json["skeletons"] = skeletons
+				fp.write(str(json) + "\n")
+		fp.close()
+
+	def dump_dataset_jumbled(self, filepath):
+		with open(filepath, "w") as fp:
+			for skeletons, sentences in zip(self.skeleton_list, self.actual_text_list):
+				indices = [i for i in range(len(skeletons))]
+
+				shuffle(indices)
+
+				jumbled_sentences = []
+				jumbled_skeletons = []
+
+				for _, index in enumerate(indices):
+					jumbled_sentences.append(sentences[index])
+					jumbled_skeletons.append(skeletons[index])
+
+				json = {}
+				json["text"] = jumbled_sentences
+				json["skeletons"] = jumbled_skeletons
+
 				fp.write(str(json) + "\n")
 		fp.close()
 

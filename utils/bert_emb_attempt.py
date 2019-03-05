@@ -1,9 +1,9 @@
-import mxnet as mx
+# import mxnet as mx
 from bert_embedding import BertEmbedding
 
 
-ctx = mx.gpu(0)
-bert = BertEmbedding(ctx=ctx)
+# ctx = mx.gpu(0)
+bert = BertEmbedding()
 
 bert_abstract = """We introduce a new language representation model called BERT, which stands for Bidirectional Encoder Representations from Transformers.
  Unlike recent language representation models, BERT is designed to pre-train deep bidirectional representations by jointly conditioning on both left and right context in all layers.
@@ -13,3 +13,5 @@ It obtains new state-of-the-art results on eleven natural language processing ta
 sentences = bert_abstract.split('\n')
 result = bert.embedding(sentences)
 
+print(len(result), len(result[0]), len(result[0][0]), len(result[0][1]))
+print(result[0][0], result[0][1][0].shape)

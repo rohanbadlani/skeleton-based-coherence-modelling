@@ -3,6 +3,8 @@ import sys
 import pdb
 import ast
 from random import shuffle
+import random
+import string
 
 class SkeletonDataset(object):
 	def __init__(self):
@@ -211,6 +213,27 @@ class SkeletonDataset(object):
 				fp.write(str(json) + "\n")
 		fp.close()
 
+	def dump_dataset_jumbled(self, filepath):
+		with open(filepath, "w") as fp:
+			for skeletons, sentences in zip(self.skeleton_list, self.actual_text_list):
+				indices = [i for i in range(len(skeletons))]
+
+				shuffle(indices)
+
+				jumbled_sentences = []
+				jumbled_skeletons = []
+
+				for _, index in enumerate(indices):
+					jumbled_sentences.append(sentences[index])
+					jumbled_skeletons.append(skeletons[index])
+
+				json = {}
+				json["text"] = jumbled_sentences
+				json["skeletons"] = jumbled_skeletons
+
+				fp.write(str(json) + "\n")
+		fp.close()
+
 	def load_dataset(self, filepath):
 		with open(filepath, "r") as fp:
 			line = fp.readline()
@@ -226,3 +249,160 @@ class SkeletonDataset(object):
 				self.actual_text_list.append(sentences)
 
 				line = fp.readline()
+
+	def construct_siamese_training_set(self, filepath):
+		delimitter = ","
+		with open("skeletons_" + str(filepath), "w") as fp:
+			fp.write(str(delimitter) + "sentences1" + str(delimitter) + "sentences2" + str(delimitter) + "is_similar\n")
+			index = 0
+			for i in range(len(self.skeleton_list)):
+				story = self.skeleton_list[i]
+				#loop over all possible combinations within the story
+				for j in range(len(story)):
+					for k in range(j+1, len(story)):
+						sentence1 = story[j]
+						sentence_1 = story[j]
+
+						sentence2 = story[k]
+
+						if len(sentence1) == 0 or len(sentence2) == 0:
+							continue
+						
+						sentence1 = ' '.join(sentence1)
+						sentence1 = sentence1.translate(str.maketrans('', '', string.punctuation))
+						
+						sentence2 = ' '.join(sentence2)
+						sentence2 = sentence2.translate(str.maketrans('', '', string.punctuation))
+
+						fp.write(str(index) + str(delimitter) + str(sentence1) + str(delimitter) + str(sentence2) + str(delimitter) + str(1) + "\n")
+						index += 1
+						#find any other random story, not the current one and add a element
+						random_story_index = random.choice(range(len(self.skeleton_list)))
+						while random_story_index == i:
+							random_story_index = random.choice(range(len(self.skeleton_list)))
+						random_story = self.skeleton_list[random_story_index]
+
+						sentence_opp = random_story[0]
+						
+						if len(sentence_1) == 0 or len(sentence_opp) == 0:
+							continue
+						
+						sentence_opp = ' '.join(sentence_opp)
+						sentence_opp = sentence_opp.translate(str.maketrans('', '', string.punctuation))
+
+						fp.write(str(index) + str(delimitter) + str(sentence1) + str(delimitter) + str(sentence_opp) + str(delimitter) + str(0) + "\n")
+						index += 1
+		fp.close()
+
+		with open("sentences_" + str(filepath), "w") as fp:
+			fp.write(str(delimitter) + "sentences1" + str(delimitter) + "sentences2" + str(delimitter) + "is_similar\n")
+			index = 0
+			for i in range(len(self.actual_text_list)):
+				story = self.actual_text_list[i]
+				#loop over all possible combinations within the story
+				for j in range(len(story)):
+					sentence1 = story[j]
+					for k in range(j+1, len(story)):
+						sentence2 = story[k]
+
+						sentence1 = sentence1.translate(str.maketrans('', '', string.punctuation))
+						sentence2 = sentence2.translate(str.maketrans('', '', string.punctuation))
+
+						if len(sentence1) == 0 or len(sentence2) == 0:
+							continue
+
+						fp.write(str(index) + str(delimitter) + str(sentence1) + str(delimitter) + str(sentence2) + str(delimitter) + str(1) + "\n")
+						index += 1
+						#find any other random story, not the current one and add a element
+						random_story_index = random.choice(range(len(self.actual_text_list)))
+						while random_story_index == i:
+							random_story_index = random.choice(range(len(self.actual_text_list)))
+						random_story = self.actual_text_list[random_story_index]
+
+						sentence_opp = random_story[0]
+						sentence_opp = sentence_opp.translate(str.maketrans('', '', string.punctuation))
+						fp.write(str(index) + str(delimitter) + str(sentence1) + str(delimitter) + str(sentence_opp) + str(delimitter) + str(0) + "\n")
+						index += 1
+		fp.close()
+
+	def construct_siamese_training_set_consecutive(self, filepath):
+		delimitter = ","
+		with open("c_skeletons_" + str(filepath), "w") as fp:
+			fp.write(str(delimitter) + "sentences1" + str(delimitter) + "sentences2" + str(delimitter) + "is_similar\n")
+			index = 0
+			for i in range(len(self.skeleton_list)):
+				story = self.skeleton_list[i]
+				#loop over all possible combinations within the story
+				for j in range(len(story)):
+					sentence1 = story[j]
+					if(j+1 < len(story) and len(sentence1) > 0):
+						k = j+1
+
+						sentence1 = story[j]
+						sentence2 = story[k]
+
+						if(len(sentence1) == 0 or len(sentence2) == 0):
+							continue
+
+						sentence1 = ' '.join(sentence1)
+						sentence1 = sentence1.translate(str.maketrans('', '', string.punctuation))
+						
+						sentence2 = ' '.join(sentence2)
+						sentence2 = sentence2.translate(str.maketrans('', '', string.punctuation))
+
+						fp.write(str(index) + str(delimitter) + str(sentence1) + str(delimitter) + str(sentence2) + str(delimitter) + str(1) + "\n")
+						index += 1
+						#find any other random story, not the current one and add a element
+						random_story_index = random.choice(range(len(self.skeleton_list)))
+						while random_story_index == i:
+							random_story_index = random.choice(range(len(self.skeleton_list)))
+
+						random_story = self.skeleton_list[random_story_index]
+
+						sentence_opp = random_story[0]
+
+						if(len(sentence_opp) == 0):
+							continue
+
+						sentence_opp = ' '.join(sentence_opp)
+						sentence_opp = sentence_opp.translate(str.maketrans('', '', string.punctuation))
+
+						fp.write(str(index) + str(delimitter) + str(sentence1) + str(delimitter) + str(sentence_opp) + str(delimitter) + str(0) + "\n")
+						index += 1
+		fp.close()
+
+		with open("c_sentences_" + str(filepath), "w") as fp:
+			fp.write(str(delimitter) + "sentences1" + str(delimitter) + "sentences2" + str(delimitter) + "is_similar\n")
+			index = 0
+			for i in range(len(self.actual_text_list)):
+				story = self.actual_text_list[i]
+				#loop over all possible combinations within the story
+				for j in range(len(story)):
+					sentence1 = story[j]
+					if(j+1 < len(story)):
+						k = j+1
+						sentence2 = story[k]
+
+						sentence1 = sentence1.translate(str.maketrans('', '', string.punctuation))
+						sentence2 = sentence2.translate(str.maketrans('', '', string.punctuation))
+
+						if len(sentence1) == 0 or len(sentence2) == 0:
+							continue
+
+						fp.write(str(index) + str(delimitter) + str(sentence1) + str(delimitter) + str(sentence2) + str(delimitter) + str(1) + "\n")
+						index += 1
+						#find any other random story, not the current one and add a element
+						random_story_index = random.choice(range(len(self.actual_text_list)))
+						while random_story_index == i:
+							random_story_index = random.choice(range(len(self.actual_text_list)))
+						random_story = self.actual_text_list[random_story_index]
+
+						sentence_opp = random_story[0]
+						sentence_opp = sentence_opp.translate(str.maketrans('', '', string.punctuation))
+
+						if len(sentence_opp) == 0:
+							continue
+
+						fp.write(str(index) + str(delimitter) + str(sentence1) + str(delimitter) + str(sentence_opp) + str(delimitter) + str(0) + "\n")
+						index += 1
+		fp.close()

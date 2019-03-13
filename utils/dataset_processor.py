@@ -9,7 +9,8 @@ def main(story_filePath, sentence_filePath, skeleton_filePath, ordered_dataset_f
 
 	#Test loader
 	#dataset.load_dataset(ordered_dataset_filepath)
-
+	dataset.construct_siamese_training_set("siamese_data.txt")
+	dataset.construct_siamese_training_set_consecutive("siamese_data.txt")
 
 if(len(sys.argv)!=6):
     print("dataset_processor usage: Please provide the filepaths. Call this script as python dataset_processor.py <story-filapath> <senetence-filepath> <skeleton-filepath> <ordered_dataset_filepath> <jumbled_dataset_filepath>")

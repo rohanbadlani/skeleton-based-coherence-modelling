@@ -1,8 +1,10 @@
 # import mxnet as mx
 from bert_embedding import BertEmbedding
+# import mxnet as mx
 
 
 # ctx = mx.gpu(0)
+
 bert = BertEmbedding()
 
 bert_abstract = """We introduce a new language representation model called BERT, which stands for Bidirectional Encoder Representations from Transformers.

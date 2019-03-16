@@ -117,7 +117,6 @@ with graph.as_default():
         print("Evaluation Metric (Sentence Level) Accuracy: {:g}".format(evaluation_metric_result))
 
         output_filepath = FLAGS.accuracy_results_filepath
-        pdb.set_trace()
         with open(output_filepath, "w") as fp:
             fp.write("Prediction Accuracy: {:g}".format(correct_predictions) + "\n")    
             fp.write("Evaluation Metric (Sentence Level) Accuracy: {:g}".format(evaluation_metric_result) + "\n")

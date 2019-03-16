@@ -5,6 +5,7 @@ import ast
 from random import shuffle
 import random
 import string
+import re
 
 class SkeletonDataset(object):
 	def __init__(self):
@@ -27,14 +28,14 @@ class SkeletonDataset(object):
 		sentence = sentence_tuple[0]
 		for word in skeleton_words:
 			#unicode strings are not getting compared properly. Handle later
-			if word.isalnum() and word not in sentence:
+			if bool(re.match('^[a-zA-Z0-9]+$', word)) and word.isalnum() and word not in sentence:
 				return False
 		return True
 
 	def checkSubstring(self, words, story):
 		for word in words:
 			#unicode strings are not getting compared properly. Handle later
-			if word.isalnum() and word not in story:
+			if bool(re.match('^[a-zA-Z0-9]+$', word)) and word.isalnum() and word not in story:
 				return False
 		return True
 
@@ -154,7 +155,7 @@ class SkeletonDataset(object):
 			sent_skeletons = []
 			sent_actual_text = []
 
-			while line:
+			while line and line_index < len(self.sentence_repo):
 				#process and identify which sentence it belongs to
 				skeleton_words = line.split("\n")[0]
 				skeleton_words = skeleton_words.split(" ")[:-1]
@@ -171,7 +172,7 @@ class SkeletonDataset(object):
 				
 				sentence_index += 1
 
-				if self.sentence_repo[line_index][1] != story_index:
+				if line_index < len(self.sentence_repo) and self.sentence_repo[line_index][1] != story_index:
 					story_index += 1
 					
 					self.skeleton_list.append(sent_skeletons)
@@ -252,7 +253,7 @@ class SkeletonDataset(object):
 
 	def construct_siamese_training_set(self, filepath):
 		delimitter = ","
-		with open("skeletons_" + str(filepath), "w") as fp:
+		with open(str(filepath) + "_skeletons", "w") as fp:
 			fp.write(str(delimitter) + "sentences1" + str(delimitter) + "sentences2" + str(delimitter) + "is_similar\n")
 			index = 0
 			for i in range(len(self.skeleton_list)):
@@ -294,7 +295,7 @@ class SkeletonDataset(object):
 						index += 1
 		fp.close()
 
-		with open("sentences_" + str(filepath), "w") as fp:
+		with open(str(filepath) + "_sentences", "w") as fp:
 			fp.write(str(delimitter) + "sentences1" + str(delimitter) + "sentences2" + str(delimitter) + "is_similar\n")
 			index = 0
 			for i in range(len(self.actual_text_list)):
@@ -326,9 +327,9 @@ class SkeletonDataset(object):
 		fp.close()
 
 	def construct_siamese_training_set_consecutive(self, filepath):
-		delimitter = ","
-		with open("c_skeletons_" + str(filepath), "w") as fp:
-			fp.write(str(delimitter) + "sentences1" + str(delimitter) + "sentences2" + str(delimitter) + "is_similar\n")
+		delimitter = "\t"
+		with open(str(filepath) + "_c_skeletons", "w") as fp:
+			fp.write("sentences1" + str(delimitter) + "sentences2" + str(delimitter) + "is_similar\n")
 			index = 0
 			for i in range(len(self.skeleton_list)):
 				story = self.skeleton_list[i]
@@ -350,7 +351,17 @@ class SkeletonDataset(object):
 						sentence2 = ' '.join(sentence2)
 						sentence2 = sentence2.translate(str.maketrans('', '', string.punctuation))
 
-						fp.write(str(index) + str(delimitter) + str(sentence1) + str(delimitter) + str(sentence2) + str(delimitter) + str(1) + "\n")
+						sentence1 = sentence1.replace('\t', '')
+						sentence1 = ' '.join(sentence1.split())
+						if sentence1 == "":
+							sentence1 = "empty"
+
+						sentence2 = sentence2.replace('\t', '')
+						sentence2 = ' '.join(sentence2.split())
+						if sentence2 == "":
+							sentence2 = "empty"
+						
+						fp.write(str(sentence1) + str(delimitter) + str(sentence2) + str(delimitter) + str(1) + "\n")
 						index += 1
 						#find any other random story, not the current one and add a element
 						random_story_index = random.choice(range(len(self.skeleton_list)))
@@ -360,6 +371,8 @@ class SkeletonDataset(object):
 						random_story = self.skeleton_list[random_story_index]
 
 						sentence_opp = random_story[0]
+						if sentence_opp == "":
+							sentence_opp = "empty"
 
 						if(len(sentence_opp) == 0):
 							continue
@@ -367,12 +380,15 @@ class SkeletonDataset(object):
 						sentence_opp = ' '.join(sentence_opp)
 						sentence_opp = sentence_opp.translate(str.maketrans('', '', string.punctuation))
 
-						fp.write(str(index) + str(delimitter) + str(sentence1) + str(delimitter) + str(sentence_opp) + str(delimitter) + str(0) + "\n")
+						sentence_opp = sentence_opp.replace('\t', '')
+						sentence_opp = ' '.join(sentence_opp.split())
+
+						fp.write(str(sentence1) + str(delimitter) + str(sentence_opp) + str(delimitter) + str(0) + "\n")
 						index += 1
 		fp.close()
 
-		with open("c_sentences_" + str(filepath), "w") as fp:
-			fp.write(str(delimitter) + "sentences1" + str(delimitter) + "sentences2" + str(delimitter) + "is_similar\n")
+		with open(str(filepath) + "_c_sentences", "w") as fp:
+			fp.write("sentences1" + str(delimitter) + "sentences2" + str(delimitter) + "is_similar\n")
 			index = 0
 			for i in range(len(self.actual_text_list)):
 				story = self.actual_text_list[i]
@@ -389,7 +405,17 @@ class SkeletonDataset(object):
 						if len(sentence1) == 0 or len(sentence2) == 0:
 							continue
 
-						fp.write(str(index) + str(delimitter) + str(sentence1) + str(delimitter) + str(sentence2) + str(delimitter) + str(1) + "\n")
+						sentence1 = sentence1.replace('\t', '')
+						sentence1 = ' '.join(sentence1.split())
+						if sentence1 == "":
+							sentence1 = "empty"
+
+						sentence2 = sentence2.replace('\t', '')
+						sentence2 = ' '.join(sentence2.split())
+						if sentence2 == "":
+							sentence2 = "empty"
+							
+						fp.write(str(sentence1) + str(delimitter) + str(sentence2) + str(delimitter) + str(1) + "\n")
 						index += 1
 						#find any other random story, not the current one and add a element
 						random_story_index = random.choice(range(len(self.actual_text_list)))
@@ -399,10 +425,15 @@ class SkeletonDataset(object):
 
 						sentence_opp = random_story[0]
 						sentence_opp = sentence_opp.translate(str.maketrans('', '', string.punctuation))
-
+						if sentence_opp == "":
+							sentence_opp = "empty"
+							
 						if len(sentence_opp) == 0:
 							continue
 
-						fp.write(str(index) + str(delimitter) + str(sentence1) + str(delimitter) + str(sentence_opp) + str(delimitter) + str(0) + "\n")
+						sentence_opp = sentence_opp.replace('\t', '')
+						sentence_opp = ' '.join(sentence_opp.split())
+
+						fp.write(str(sentence1) + str(delimitter) + str(sentence_opp) + str(delimitter) + str(0) + "\n")
 						index += 1
 		fp.close()

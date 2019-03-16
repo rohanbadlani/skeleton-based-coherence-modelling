@@ -4,7 +4,7 @@ Note: FastText Embeddings are in wordvecs/. Embedding dim is 100.
 
 1. Train the Siamese Model. 
 ```
-python train.py --is_char_based=False --word2vec_mode=wordvecs/fasttext-skeleton-data.model.vec --word2vec_format=text --embedding_dim=100 --training_files=data/siamese_train_sentence.txt --num_epochs=100 
+python train.py --is_char_based=False --word2vec_model=wordvecs/fasttext-skeleton-data.model.vec --word2vec_format=text --embedding_dim=100 --training_files=data/siamese_train_sentence.txt --num_epochs=100 
 ```
 
 2. Preprocess test file to convert into format that is consumable by 

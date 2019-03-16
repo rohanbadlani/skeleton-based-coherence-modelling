@@ -70,10 +70,16 @@ def get_agg_scores_from_embs(para_lengths):
     #             if ordered_sk_agg >= jumbled_sk_agg:
     #                 skeletons_correct_preds += 1
     #                 # print("right:", idx)
-
+    print(jumbled_similarities[:100])
+    correct_ordered = np.sum(ordered_similarities >= 0.5)
+    correct_jumbled = np.sum(jumbled_similarities < 0.5)
+    correct_ordered_sk = np.sum(ordered_sk_similarities >= 0.5)
+    correct_jumbled_sk = np.sum(jumbled_sk_similarities < 0.5)
+    
     correct = ordered_similarities >= jumbled_similarities
     print(correct.shape)
     correct_sk = ordered_sk_similarities >= jumbled_sk_similarities
+    print("correct by style 1: ", correct_ordered, correct_jumbled, correct_ordered_sk, correct_jumbled_sk)
     print(correct_sk.shape)
     print(np.sum(correct), np.sum(correct_sk))
     print(np.sum(ordered_similarities), np.sum(jumbled_similarities))

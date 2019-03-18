@@ -326,6 +326,7 @@ class SkeletonDataset(object):
 						index += 1
 		fp.close()
 
+                
 	def construct_siamese_training_set_consecutive(self, filepath):
 		delimitter = "\t"
 		with open(str(filepath) + "_c_skeletons", "w") as fp:
@@ -357,7 +358,7 @@ class SkeletonDataset(object):
 							sentence1 = "empty"
 
 						sentence2 = sentence2.replace('\t', '')
-						sentence2 = ' '.join(sentence2.split())
+ 						sentence2 = ' '.join(sentence2.split())
 						if sentence2 == "":
 							sentence2 = "empty"
 						
@@ -437,3 +438,144 @@ class SkeletonDataset(object):
 						fp.write(str(sentence1) + str(delimitter) + str(sentence_opp) + str(delimitter) + str(0) + "\n")
 						index += 1
 		fp.close()
+
+        def construct_siamese_test_set_paragraph(self, filepath):
+                delimiter = "\t"
+                with open(str(filepath) + "_c_skeletons", "w") as fp:
+                        fp.write("sentences1" + str(delimitter) + "sentences2" + str(delimitter) + "is_similar\n")
+			index = 0
+                        for i in range(len(self.skeleton_list)):
+                                story = self.skeleton_list[i]
+                                rand_perm = np.random.permutation(len(story))
+                                story_jumbled = []
+                                for idx in rand_perm:
+                                        story_jumbled.append(story[idx - 1])
+                                for j in range(len(story)):
+                                        sentence1 = story[j]
+					if(j+1 < len(story) and len(sentence1) > 0):
+						k = j+1
+
+						sentence1 = story[j]
+						sentence2 = story[k]
+
+						if(len(sentence1) == 0 or len(sentence2) == 0):
+							continue
+
+						sentence1 = ' '.join(sentence1)
+						sentence1 = sentence1.translate(str.maketrans('', '', string.punctuation))
+						
+						sentence2 = ' '.join(sentence2)
+						sentence2 = sentence2.translate(str.maketrans('', '', string.punctuation))
+
+						sentence1 = sentence1.replace('\t', '')
+						sentence1 = ' '.join(sentence1.split())
+						if sentence1 == "":
+							sentence1 = "empty"
+
+						sentence2 = sentence2.replace('\t', '')
+ 						sentence2 = ' '.join(sentence2.split())
+						if sentence2 == "":
+							sentence2 = "empty"
+						
+						fp.write(str(sentence1) + str(delimitter) + str(sentence2) + str(delimitter) + str(1) + "\n")
+						index += 1
+                                for j in range(len(story_jumbled)):
+                                        sentence1 = story_jumbled[j]
+					if(j+1 < len(story_jumbled) and len(sentence1) > 0):
+						k = j+1
+
+						sentence1 = story_jumbled[j]
+						sentence2 = story_jumbled[k]
+
+						if(len(sentence1) == 0 or len(sentence2) == 0):
+							continue
+
+						sentence1 = ' '.join(sentence1)
+						sentence1 = sentence1.translate(str.maketrans('', '', string.punctuation))
+						
+						sentence2 = ' '.join(sentence2)
+						sentence2 = sentence2.translate(str.maketrans('', '', string.punctuation))
+
+						sentence1 = sentence1.replace('\t', '')
+						sentence1 = ' '.join(sentence1.split())
+						if sentence1 == "":
+							sentence1 = "empty"
+
+						sentence2 = sentence2.replace('\t', '')
+ 						sentence2 = ' '.join(sentence2.split())
+						if sentence2 == "":
+							sentence2 = "empty"
+						
+						fp.write(str(sentence1) + str(delimitter) + str(sentence2) + str(delimitter) + str(0) + "\n")
+						index += 1
+		fp.close()
+
+                with open(str(filepath) + "_c_sentences", "w") as fp:
+                        fp.write("sentences1" + str(delimitter) + "sentences2" + str(delimitter) + "is_similar\n")
+			index = 0
+                        for i in range(len(self.actual_text_list)):
+                                story = self.actual_text_list[i]
+                                rand_perm = np.random.permutation(len(story))
+                                story_jumbled = []
+                                for idx in rand_perm:
+                                        story_jumbled.append(story[idx - 1])
+                                for j in range(len(story)):
+                                        sentence1 = story[j]
+					if(j+1 < len(story) and len(sentence1) > 0):
+						k = j+1
+
+						sentence1 = story[j]
+						sentence2 = story[k]
+
+						if(len(sentence1) == 0 or len(sentence2) == 0):
+							continue
+
+						sentence1 = ' '.join(sentence1)
+						sentence1 = sentence1.translate(str.maketrans('', '', string.punctuation))
+						
+						sentence2 = ' '.join(sentence2)
+						sentence2 = sentence2.translate(str.maketrans('', '', string.punctuation))
+
+						sentence1 = sentence1.replace('\t', '')
+						sentence1 = ' '.join(sentence1.split())
+						if sentence1 == "":
+							sentence1 = "empty"
+
+						sentence2 = sentence2.replace('\t', '')
+ 						sentence2 = ' '.join(sentence2.split())
+						if sentence2 == "":
+							sentence2 = "empty"
+						
+						fp.write(str(sentence1) + str(delimitter) + str(sentence2) + str(delimitter) + str(1) + "\n")
+						index += 1
+                                for j in range(len(story_jumbled)):
+                                        sentence1 = story_jumbled[j]
+					if(j+1 < len(story_jumbled) and len(sentence1) > 0):
+						k = j+1
+
+						sentence1 = story_jumbled[j]
+						sentence2 = story_jumbled[k]
+
+						if(len(sentence1) == 0 or len(sentence2) == 0):
+							continue
+
+						sentence1 = ' '.join(sentence1)
+						sentence1 = sentence1.translate(str.maketrans('', '', string.punctuation))
+						
+						sentence2 = ' '.join(sentence2)
+						sentence2 = sentence2.translate(str.maketrans('', '', string.punctuation))
+
+						sentence1 = sentence1.replace('\t', '')
+						sentence1 = ' '.join(sentence1.split())
+						if sentence1 == "":
+							sentence1 = "empty"
+
+						sentence2 = sentence2.replace('\t', '')
+ 						sentence2 = ' '.join(sentence2.split())
+						if sentence2 == "":
+							sentence2 = "empty"
+						
+						fp.write(str(sentence1) + str(delimitter) + str(sentence2) + str(delimitter) + str(0) + "\n")
+						index += 1
+		fp.close()
+                

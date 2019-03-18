@@ -1,7 +1,7 @@
 from dataset import *
 
 
-def main(story_filePath, sentence_filePath, skeleton_filePath, ordered_dataset_filepath, siamese_dataset_filepath, siamese_consecutive_dataset_filepath):
+def main(story_filePath, sentence_filePath, skeleton_filePath, ordered_dataset_filepath, siamese_dataset_filepath, siamese_consecutive_dataset_filepath, siamese_paragraph_dataset_filepath):
 	dataset = SkeletonDataset()
 	dataset.read_dataset(story_filePath, sentence_filePath, skeleton_filePath)
 	dataset.dump_dataset_ordered(ordered_dataset_filepath)
@@ -11,9 +11,10 @@ def main(story_filePath, sentence_filePath, skeleton_filePath, ordered_dataset_f
 	#dataset.load_dataset(ordered_dataset_filepath)
 	dataset.construct_siamese_training_set(siamese_dataset_filepath)
 	dataset.construct_siamese_training_set_consecutive(siamese_consecutive_dataset_filepath)
+	dataset.construct_siamese_test_set_paragraph(siamese_paragraph_dataset_filepath)
 
-if(len(sys.argv)!=8):
-    print("dataset_processor usage: Please provide the filepaths. Call this script as python dataset_processor.py <story-filapath> <senetence-filepath> <skeleton-filepath> <ordered_dataset_filepath> <jumbled_dataset_filepath> <siamese_dataset_filepath> <siamese_consecutive_dataset_filepath>")
+if(len(sys.argv)!=9):
+    print("dataset_processor usage: Please provide the filepaths. Call this script as python dataset_processor.py <story-filapath> <senetence-filepath> <skeleton-filepath> <ordered_dataset_filepath> <jumbled_dataset_filepath> <siamese_dataset_filepath> <siamese_consecutive_dataset_filepath> <siamese_paragraph_dataset_filepath>")
     sys.exit(1)
 
 story_filePath = sys.argv[1]
@@ -23,5 +24,6 @@ ordered_dataset_filepath = sys.argv[4]
 jumbled_dataset_filepath = sys.argv[5]
 siamese_dataset_filepath = sys.argv[6]
 siamese_consecutive_dataset_filepath = sys.argv[7]
+siamese_paragraph_dataset_filepath = sys.argv[8]
 
-main(story_filePath, sentence_filePath, skeleton_filePath, ordered_dataset_filepath, siamese_dataset_filepath, siamese_consecutive_dataset_filepath)
+main(story_filePath, sentence_filePath, skeleton_filePath, ordered_dataset_filepath, siamese_dataset_filepath, siamese_consecutive_dataset_filepath, siamese_paragraph_dataset_filepath)

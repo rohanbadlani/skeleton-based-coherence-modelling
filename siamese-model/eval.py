@@ -51,6 +51,34 @@ def get_accuracy_evaluation_metric_sentence_level(all_predictions, y_test):
     else:
         return [0.0, pair_count]
 
+def get_accuracy_evaluation_metric_story_level(all_predictions, y_test):
+    """
+    Looks at 2 consecutive stories and assumes 1st one is from ordered and 2nd is from unordered. 
+    Counts 1 if 1st > 2nd, else 0, and finally reports counts / total_pairs_of_sentences 
+    """
+    pair_count = 0
+    success_count = 0
+    index = 0
+    while (index + 1) < len(all_predictions):
+        ordered_score, unordered_score = 0.0, 0.0
+        ordered_total, unordered_total = 0.0, 0.0
+        while index < len(all_predictions) and y_test[index] == 1:
+            ordered_score += all_predictions[index]
+            index += 1
+            ordered_total += 1
+        while index < len(all_predictions) and y_test[index] == 0:
+            unordered_score += all_predictions[index]
+            unordered_total += 1
+            index += 1
+        if ordered_score >= unordered_score:
+            success_count += 1
+        pair_count += 1
+        
+    if (pair_count != 0):
+        return [success_count / float(pair_count), pair_count]
+    else:
+        return [0.0, pair_count]
+
 FLAGS = tf.flags.FLAGS
 FLAGS._parse_flags()
 print("\nParameters:")
@@ -120,11 +148,17 @@ with graph.as_default():
         print("Prediction Accuracy: {:g}".format(correct_predictions))
 
         evaluation_metric_result, pair_count = get_accuracy_evaluation_metric_sentence_level(all_predictions, y_test)
+        story_eval_result, story_pair_count = get_accuracy_evaluation_metric_story_level(all_predictions, y_test)
+        
         print("Evaluation Metric (Sentence Level) Accuracy: {:g}".format(evaluation_metric_result))
         print("Valid pairs count: ", pair_count)
+        print("Evaluation Metric (Story Level) Accuracy: {:g}".format(story_eval_result))
+        print("Valid story pairs count: ", story_pair_count)
+        
         output_filepath = FLAGS.accuracy_results_filepath
         with open(output_filepath, "w") as fp:
             fp.write("Prediction Accuracy: {:g}".format(correct_predictions) + "\n")    
             fp.write("Evaluation Metric (Sentence Level) Accuracy: {:g}".format(evaluation_metric_result) + "\n")
+            fp.write("Evaluation Metric (Story level) Accuracy: {:g}".format(story_eval_result) + "\n")
             
         fp.close()

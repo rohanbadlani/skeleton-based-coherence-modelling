@@ -197,11 +197,18 @@ with tf.Graph().as_default():
                 siameseModel.input_y: y_batch,
                 siameseModel.dropout_keep_prob: FLAGS.dropout_keep_prob,
             }
+        out1_list = sess.run([siameseModel.out1_list], feed_dict)
+        out1_perm = sess.run([siameseModel.out1_perm], feed_dict)
+        out1 = sess.run([siameseModel.out1], feed_dict)
+        # print("in train: ", np.array(out1_list).shape, type(out1_list))
+        # print("in train: ",  np.array(out1_perm).shape, type(out1_perm))
+        # print("in train: ",  np.array(out1).shape, type(out1))
         _, step, loss, accuracy, dist, sim, summaries = sess.run([tr_op_set, global_step, siameseModel.loss, siameseModel.accuracy, siameseModel.distance, siameseModel.temp_sim, train_summary_op],  feed_dict)
         time_str = datetime.datetime.now().isoformat()
-        print("TRAIN {}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
+        if step % 100 == 0:
+            print("TRAIN {}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
         train_summary_writer.add_summary(summaries, step)
-        print(y_batch, dist, sim)
+        # print(y_batch, dist, sim)
 
     def dev_step(x1_batch, x2_batch, y_batch):
         """
@@ -221,11 +228,13 @@ with tf.Graph().as_default():
                 siameseModel.input_y: y_batch,
                 siameseModel.dropout_keep_prob: 1.0,
             }
+        out_1, out_2 = sess.run([siameseModel.out1_list, siameseModel.out2_list], feed_dict)
+        print("in dev: ", np.array(out_1).shape, np.array(out_2).shape)
         step, loss, accuracy, sim, summaries = sess.run([global_step, siameseModel.loss, siameseModel.accuracy, siameseModel.temp_sim, dev_summary_op],  feed_dict)
         time_str = datetime.datetime.now().isoformat()
         print("DEV {}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
         dev_summary_writer.add_summary(summaries, step)
-        print (y_batch, sim)
+        # print (y_batch, sim)
         return accuracy
 
     # Generate batches

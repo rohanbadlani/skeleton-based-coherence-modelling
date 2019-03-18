@@ -24,7 +24,7 @@ tf.flags.DEFINE_boolean("allow_soft_placement", True, "Allow device soft device 
 tf.flags.DEFINE_boolean("log_device_placement", False, "Log placement of ops on devices")
 
 #Utilities
-def get_accuracy_evaluation_metric_sentence_level(all_predictions):
+def get_accuracy_evaluation_metric_sentence_level(all_predictions, y_test):
     """
     Looks at 2 consecutive predictions and assumes 1st one is from ordered and 2nd is from unordered. 
     Counts 1 if 1st > 2nd, else 0, and finally reports counts / total_pairs_of_sentences 
@@ -33,17 +33,23 @@ def get_accuracy_evaluation_metric_sentence_level(all_predictions):
     success_count = 0
     index = 0
     while (index + 1) < len(all_predictions):
-        ordered_sentence_pair_pred = all_predictions[index]
-        unordered_sentence_pair_pred = all_predictions[index + 1]
-        if ordered_sentence_pair_pred >= unordered_sentence_pair_pred:
-            success_count += 1
-        pair_count += 1
+        if y_test[index] == 1 and y_test[index + 1] == 0:
+            ordered_sentence_pair_pred = all_predictions[index]
+            unordered_sentence_pair_pred = all_predictions[index + 1]
+            if ordered_sentence_pair_pred > unordered_sentence_pair_pred:
+                success_count += 1
+            # else:
+            #     print(index, all_predictions[index], all_predictions[index+1], y_test[index], y_test[index+1])
+            # pair_count += 1
+            pair_count += 1
+        else:
+            index -= 1
         index += 2
 
     if (pair_count != 0):
-        return success_count / float(pair_count)
+        return [success_count / float(pair_count), pair_count]
     else:
-        return 0.0
+        return [0.0, pair_count]
 
 FLAGS = tf.flags.FLAGS
 FLAGS._parse_flags()
@@ -102,7 +108,7 @@ with graph.as_default():
             try:
                 x1_dev_b,x2_dev_b,y_dev_b = zip(*db)
                 batch_predictions, batch_acc, batch_sim = sess.run([predictions,accuracy,sim], {input_x1: x1_dev_b, input_x2: x2_dev_b, input_y:y_dev_b, dropout_keep_prob: 1.0})
-                all_predictions = np.concatenate([all_predictions, batch_predictions])
+                all_predictions = np.concatenate([all_predictions, 1.0 - batch_predictions])
                 print(batch_predictions)
                 all_d = np.concatenate([all_d, batch_sim])
                 print("DEV acc {}".format(batch_acc))
@@ -113,9 +119,9 @@ with graph.as_default():
         correct_predictions = float(np.mean(all_d == y_test))
         print("Prediction Accuracy: {:g}".format(correct_predictions))
 
-        evaluation_metric_result = get_accuracy_evaluation_metric_sentence_level(all_predictions)
+        evaluation_metric_result, pair_count = get_accuracy_evaluation_metric_sentence_level(all_predictions, y_test)
         print("Evaluation Metric (Sentence Level) Accuracy: {:g}".format(evaluation_metric_result))
-
+        print("Valid pairs count: ", pair_count)
         output_filepath = FLAGS.accuracy_results_filepath
         with open(output_filepath, "w") as fp:
             fp.write("Prediction Accuracy: {:g}".format(correct_predictions) + "\n")    

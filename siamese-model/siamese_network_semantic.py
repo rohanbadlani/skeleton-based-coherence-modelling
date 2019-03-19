@@ -78,8 +78,8 @@ class SiameseLSTMw2v(object):
             self.out1_reshape = tf.reshape(self.out1_init, [-1, sequence_length * hidden_units])
             self.out2_reshape = tf.reshape(self.out2_init, [-1, sequence_length * hidden_units])
 
-            self.logits_1 = tf.contrib.layers.fully_connected(
-                self.out1_reshape, sequence_length, activation_fn=None)
+            self.logits_1 = tf.nn.relu(tf.contrib.layers.fully_connected(
+                self.out1_reshape, sequence_length, activation_fn=None))
             # logits = tf.matmul(attention_layer, outputs)
             self.attn_weights_1 = tf.nn.softmax(self.logits_1)
             # self.out1_reshape = tf.reshape(self.out1, [batch_size, sequence_length, hidden_units])

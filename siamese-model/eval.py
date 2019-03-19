@@ -59,7 +59,7 @@ def get_accuracy_evaluation_metric_story_level(all_predictions, y_test):
     pair_count = 0
     success_count = 0
     index = 0
-    while (index + 1) < len(all_predictions):
+    while (index) < len(all_predictions):
         ordered_score, unordered_score = 0.0, 0.0
         ordered_total, unordered_total = 0.0, 0.0
         while index < len(all_predictions) and y_test[index] == 1:
